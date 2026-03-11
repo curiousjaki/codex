@@ -27,12 +27,12 @@ async function deployCodexFixture() {
   ]);
 
   // Setup roles: provider registers as Provider, consumer registers as Consumer
-  await codex.write.updateUserRoles(
-    [[{ isAdd: true, role: Role.Provider }]],
+  await codex.write.addRole(
+    [Role.Provider],
     { account: providerWallet.account }
   );
-  await codex.write.updateUserRoles(
-    [[{ isAdd: true, role: Role.Consumer }]],
+  await codex.write.addRole(
+    [Role.Consumer],
     { account: consumerWallet.account }
   );
 
@@ -92,13 +92,12 @@ describe("Codex", function () {
     it("should allow user to add Consumer/Provider roles", async function () {
       const { codex, otherWallet } = await networkHelpers.loadFixture(deployCodexFixture);
 
-      await codex.write.updateUserRoles(
-        [
-          [
-            { isAdd: true, role: Role.Consumer },
-            { isAdd: true, role: Role.Provider },
-          ],
-        ],
+      await codex.write.addRole(
+        [Role.Consumer],
+        { account: otherWallet.account }
+      );
+      await codex.write.addRole(
+        [Role.Provider],
         { account: otherWallet.account }
       );
 
@@ -115,8 +114,8 @@ describe("Codex", function () {
     it("should allow user to remove own role", async function () {
       const { codex, providerWallet } = await networkHelpers.loadFixture(deployCodexFixture);
 
-      await codex.write.updateUserRoles(
-        [[{ isAdd: false, role: Role.Provider }]],
+      await codex.write.removeRole(
+        [Role.Provider],
         { account: providerWallet.account }
       );
 
@@ -130,8 +129,8 @@ describe("Codex", function () {
       const { codex, otherWallet } = await networkHelpers.loadFixture(deployCodexFixture);
 
       await viem.assertions.revertWithCustomError(
-        codex.write.updateUserRoles(
-          [[{ isAdd: true, role: Role.Certifier }]],
+        codex.write.addRole(
+          [Role.Certifier],
           { account: otherWallet.account }
         ),
         codex,
@@ -176,8 +175,8 @@ describe("Codex", function () {
       const { codex, otherWallet } = await networkHelpers.loadFixture(deployCodexFixture);
 
       await viem.assertions.emitWithArgs(
-        codex.write.updateUserRoles(
-          [[{ isAdd: true, role: Role.Consumer }]],
+        codex.write.addRole(
+          [Role.Consumer],
           { account: otherWallet.account }
         ),
         codex,
@@ -496,8 +495,8 @@ describe("Codex", function () {
         await networkHelpers.loadFixture(deployMintAndCertifyFixture);
 
       // Provider is also a consumer for this test
-      await codex.write.updateUserRoles(
-        [[{ isAdd: true, role: Role.Consumer }]],
+      await codex.write.addRole(
+        [Role.Consumer],
         { account: providerWallet.account }
       );
 
